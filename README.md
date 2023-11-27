@@ -7,4 +7,4 @@
   ## Setup & Requirements
    
    - Rust version ***1.74.0***
-   - 참고: (Rust 설치법)[https://rinthel.github.io/rust-lang-book-ko/ch01-01-installation.html]
+   - 참고: *Rust 설치법*[https://rinthel.github.io/rust-lang-book-ko/ch01-01-installation.html]
