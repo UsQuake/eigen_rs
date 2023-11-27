@@ -17,7 +17,11 @@
   ## Explanation
   
   ### 1. 각종 선형대수학 함수들을 구현합니다. 과제를 위해 일부만 구현했습니다.(Implement well-known linear-algebra functions.)
-  
+  - 요소가 2개, 3개인 열벡터를 행렬을 통해 정의
+    ```Rust
+    type Vec3 = Matrix<3, 1>;
+    type Vec2 = Matrix<2, 1>;
+    ```
   - 행렬 x 열벡터
     ```Rust
     fn mul(self, other_vector: Vec3) -> Vec3{
