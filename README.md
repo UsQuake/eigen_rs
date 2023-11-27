@@ -2,7 +2,7 @@
 
   ## 소개
   
-   - Rust로 간단한 iterative power method 구현해 고유값/고유벡터 찾기.(Describe how to get eigenvalue/eigenvector with iterative power method in rust.)
+   - Rust로 간단한 iterative power method 구현해 고유값/고유벡터 찾기.
      
   ## 선행 지식
 
@@ -71,7 +71,7 @@
 
   ### 3.iterative power method를 구현합니다.
 
-  - 
+  - lambda는 고유값(eigenvalue)에 대한 근삿값이고, x는 임의의 벡터에서 고유벡터(eigenvector)로 수렴하는 벡터입니다.
       ```Rust
       loop{
 
