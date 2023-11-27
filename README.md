@@ -73,30 +73,25 @@
 
   - lambda는 고유값(eigenvalue)에 대한 근삿값이고, x는 임의의 벡터에서 고유벡터(eigenvector)로 수렴하는 벡터입니다.
       ```Rust
-      loop{
+       loop{
+          Ax = A * x;
+        let prev_lambda = lambda;
+        lambda = Ax.dot(x);
 
-          //행렬 A와 임의 벡터 X 곱하기
-          let Ax: Vec3 = A * x;
-          let previous_lambda = lambda;
-          //오차 계산을 위해 이전 람다도 저장
+        if try_count == 0|| (lambda - prev_lambda).abs() < std::f64::EPSILON
+        {
+            break;
+        }
+        x = Ax.normalize();
+    
+        try_count -= 1;
+       }
+      //최종 mu 계산
+      mu = (A * x).get_norm();
 
-          //출력
-          println!("{index}번째 실행 결과");
-          println!("A x xk: {Ax}");
-          println!("λk: {lambda:.6}");
-          println!("Vk: {x}\n");
-
-          //현재 람다 구하기
-          lambda = Ax.dot(x);
-
-          //이전 람다랑 비교하여 오차가 머신-입실론 밑으로 떨어지면 탈출
-          if (lambda - previous_lambda).abs() < std::f64::EPSILON
-          {
-              break;
-          }
-
-          //계산된 새로운 X는 A * x의 정규 벡터
-          x = Ax.normalize();
-          index += 1;
-      }
+      //출력
+      println!("{MAX_COUNT}번째 실행 결과");
+      println!("xk: {x}");
+      println!("A x xk: {Ax}");
+      println!("μk: {mu:.2}");
       ```
