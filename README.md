@@ -34,13 +34,13 @@
   - 행렬과 열벡터의 곱
     ```Rust
     fn mul(self, other_vector: Vec3) -> Vec3{
-        Matrix{
-            elements :[
-                [ self.elements[0][0] * other_vector.elements[0][0] + self.elements[0][1] * other_vector.elements[1][0] + self.elements[0][2] * other_vector.elements[2][0] ],
-                [ self.elements[1][0] * other_vector.elements[0][0] + self.elements[1][1] * other_vector.elements[1][0] + self.elements[1][2] * other_vector.elements[2][0] ],
-                [ self.elements[2][0] * other_vector.elements[0][0] + self.elements[2][1] * other_vector.elements[1][0] + self.elements[2][2] * other_vector.elements[2][0] ]
-            ]
-        }
+       Matrix{
+        elements :[
+                  [ self.elements[0][0] * other_vector.elements[0][0] + self.elements[0][1] * other_vector.elements[1][0] + self.elements[0][2] * other_vector.elements[2][0] ],
+                  [ self.elements[1][0] * other_vector.elements[0][0] + self.elements[1][1] * other_vector.elements[1][0] + self.elements[1][2] * other_vector.elements[2][0] ],
+                  [ self.elements[2][0] * other_vector.elements[0][0] + self.elements[2][1] * other_vector.elements[1][0] + self.elements[2][2] * other_vector.elements[2][0] ]
+               ]
+         }
     }
     ```
   - 벡터 간의 내적
@@ -55,18 +55,38 @@
     ```
   - 벡터 정규화
     ```Rust
-        pub fn normalize(&self) -> Matrix<ROW_COUNT, 1>{
-        let mut sum: f64 = 0.0;
-        for i in self.elements{
-            sum += i[0] * i[0];
-        }
-        let norm = sum.sqrt();
-        let mut result = Self { elements: [[0.0;1]; ROW_COUNT] };
-        for j in 0..ROW_COUNT{
-               result.elements[j][0] = self.elements[j][0] / norm;
-        }
-        result
+    pub fn normalize(&self) -> Matrix<ROW_COUNT, 1>{
+     let mut sum: f64 = 0.0;
+     for i in self.elements{
+      sum += i[0] * i[0];
+     }
+     let norm = sum.sqrt();
+     let mut result = Self { elements: [[0.0;1]; ROW_COUNT] };
+     for j in 0..ROW_COUNT{
+       result.elements[j][0] = self.elements[j][0] / norm;
+     }
+     result
     }
     ```
 
-  ### 3. 고유값/고유벡터를 구하는 iterative power method를 구현합니다. lambda: dot(x, A * x) x: normalize(A * x)
+  ### 3.iterative power method를 구현합니다.
+
+  - 
+      ```Rust
+      loop{
+        let Ax: Vec3 = A * x;
+        let previous_lambda = lambda;
+
+        println!("{index}번째 실행 결과");
+        println!("A x xk: {Ax}");
+        println!("λk: {lambda:.6}");
+        println!("Vk: {x}\n"); 
+        lambda = Ax.dot(x);
+        if (lambda - previous_lambda).abs() < std::f64::EPSILON
+        {
+            break;
+        }
+        x = Ax.normalize();
+        index += 1;
+      }
+      ```
