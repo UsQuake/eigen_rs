@@ -74,19 +74,29 @@
   - 
       ```Rust
       loop{
-        let Ax: Vec3 = A * x;
-        let previous_lambda = lambda;
 
-        println!("{index}번째 실행 결과");
-        println!("A x xk: {Ax}");
-        println!("λk: {lambda:.6}");
-        println!("Vk: {x}\n"); 
-        lambda = Ax.dot(x);
-        if (lambda - previous_lambda).abs() < std::f64::EPSILON
-        {
-            break;
-        }
-        x = Ax.normalize();
-        index += 1;
+          //행렬 A와 임의 벡터 X 곱하기
+          let Ax: Vec3 = A * x;
+          let previous_lambda = lambda;
+          //오차 계산을 위해 이전 람다도 저장
+
+          //출력
+          println!("{index}번째 실행 결과");
+          println!("A x xk: {Ax}");
+          println!("λk: {lambda:.6}");
+          println!("Vk: {x}\n");
+
+          //현재 람다 구하기
+          lambda = Ax.dot(x);
+
+          //이전 람다랑 비교하여 오차가 머신-입실론 밑으로 떨어지면 탈출
+          if (lambda - previous_lambda).abs() < std::f64::EPSILON
+          {
+              break;
+          }
+
+          //계산된 새로운 X는 A * x의 정규 벡터
+          x = Ax.normalize();
+          index += 1;
       }
       ```
