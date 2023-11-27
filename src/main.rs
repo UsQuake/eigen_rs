@@ -6,12 +6,16 @@ type Vec3 = Matrix<3, 1>;
 type Vec2 = Matrix<2, 1>;
 impl<const ROW_COUNT: usize> Matrix<ROW_COUNT, 1>
 {
-    pub fn normalize(&self) -> Matrix<ROW_COUNT, 1>{
+
+    pub fn get_norm(&self) -> f64{
         let mut sum: f64 = 0.0;
         for i in self.elements{
             sum += i[0] * i[0];
         }
-        let norm = sum.sqrt();
+        sum.sqrt()
+    }
+    pub fn normalize(&self) -> Matrix<ROW_COUNT, 1>{
+        let norm = self.get_norm();
         let mut result = Self { elements: [[0.0;1]; ROW_COUNT] };
         for j in 0..ROW_COUNT{
                result.elements[j][0] = self.elements[j][0] / norm;
@@ -60,32 +64,38 @@ impl<const ROW_COUNT: usize>  std::fmt::Display for Matrix<ROW_COUNT, 1> {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(f,"[").unwrap();
         for i in 0..ROW_COUNT - 1{
-            write!(f,"{:.6}, ",self.elements[i][0]).unwrap();
+            write!(f,"{:.2}, ",self.elements[i][0]).unwrap();
         }
-        write!(f,"{:.6}]",self.elements[ROW_COUNT - 1][0])
+        write!(f,"{:.2}]",self.elements[ROW_COUNT - 1][0])
     }
 }
 fn main() {
-    let A = Matrix{elements: [[10.0, -8.0, -4.0],
-                                             [-8.0, 13.0, 4.0], 
-                                             [-4.0, 5.0, 4.0]]};
-    let mut x = Vec3{elements: [[1.0], [1.0], [1.0]]};
+    let A = Matrix{elements: [[6.0, 5.0],
+                                             [1.0, 2.0]]};
+    let mut x = Vec2{elements: [[1.0], [1.0]]};
     let mut lambda = 0.0;
-    let mut index = 0;
+    let mut mu = 0.0;
+    const MAX_COUNT: usize = 5;
+    let mut try_count = MAX_COUNT;
+    let mut Ax: Vec2 = A * x;
     loop{
-        let Ax: Vec3 = A * x;
-        let previous_lambda = lambda;
-
-        println!("{index}번째 실행 결과");
-        println!("A x xk: {Ax}");
-        println!("λk: {lambda:.6}");
-        println!("Vk: {x}\n"); 
+        Ax = A * x;
+        let prev_lambda = lambda;
         lambda = Ax.dot(x);
-        if (lambda - previous_lambda).abs() < std::f64::EPSILON
+
+        if try_count == 0|| (lambda - prev_lambda).abs() < std::f64::EPSILON
         {
             break;
         }
         x = Ax.normalize();
-        index += 1;
+    
+        try_count -= 1;
     }
+    mu = (A * x).get_norm();
+
+    println!("{MAX_COUNT}번째 실행 결과");
+    println!("xk: {x}");
+    println!("A x xk: {Ax}");
+    println!("μk: {mu:.2}");
+   
 }
