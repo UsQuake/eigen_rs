@@ -20,9 +20,9 @@
 
   - 인덱스를 통해 행렬에[행][열]꼴로 접근할 수 있게 다음과 같이 정의합니다.
     ```Rust
-        struct Matrix<const ROW_COUNT: usize, const COLUMN_COUNT: usize>{
+    struct Matrix<const ROW_COUNT: usize, const COLUMN_COUNT: usize>{
         elements: [[f64;COLUMN_COUNT];ROW_COUNT]
-        }
+    }
     ```
   - 요소가 2개, 3개인 열벡터를 행렬을 통해 정의합니다.
     ```Rust
