@@ -49,14 +49,14 @@ impl<const N: usize> Matrix<N, N>
 
     }
 
-    pub fn get_smallest_eigen(&self, x: Matrix<N,1>, try_count: usize, alpha: f64)-> (Matrix<N,1>, Matrix<N,1>, f64, f64){
+    pub fn get_smallest_eigen(&self, x: Matrix<N,1>, try_count: usize)-> (Matrix<N,1>, Matrix<N,1>, f64, f64){
         let mut try_count = try_count;
         let mut x= x.clone();
         let mat_a_inverse: Matrix<N, N> = self.clone().get_inverse_matrix(); 
         loop{
             let y = mat_a_inverse * x;
             let mu =  y.get_abs_max();
-            let v = alpha + (1.0/ mu);
+            let v = 1.0/ mu;
             if try_count == 0 
             {
                 return (x, y, mu, v);
@@ -143,7 +143,7 @@ fn main() {
                                             [-4.0, 5.0, 4.0]]};
     let x0 = Matrix{elements: [[1.0], [1.0], [1.0]]};
     let try_count = 600;
-    let result0 = mat_b.get_smallest_eigen(x0, try_count, 0.0);
+    let result0 = mat_b.get_smallest_eigen(x0, try_count);
 
     println!("2번 문제: {try_count}번째 실행 결과");
     println!("xk: {}", result0.0);
