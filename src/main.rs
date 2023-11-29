@@ -2,25 +2,93 @@
 struct Matrix<const ROW_COUNT: usize, const COLUMN_COUNT: usize>{
     elements: [[f64;COLUMN_COUNT];ROW_COUNT]
 }
-type Vec3 = Matrix<3, 1>;
-type Vec2 = Matrix<2, 1>;
-impl<const ROW_COUNT: usize> Matrix<ROW_COUNT, 1>
-{
 
-    pub fn get_norm(&self) -> f64{
-        let mut sum: f64 = 0.0;
-        for i in self.elements{
-            sum += i[0] * i[0];
-        }
-        sum.sqrt()
-    }
-    pub fn normalize(&self) -> Matrix<ROW_COUNT, 1>{
-        let norm = self.get_norm();
-        let mut result = Self { elements: [[0.0;1]; ROW_COUNT] };
-        for j in 0..ROW_COUNT{
-               result.elements[j][0] = self.elements[j][0] / norm;
+impl<const N: usize> Matrix<N, N>
+{
+    pub fn get_identity_matrix()-> Self{
+        let mut result = Self{elements: [[0.0;N];N]};
+        for i in 0..N{
+            result.elements[i][i] = 1.0;
         }
         result
+    }
+    pub fn get_inverse_matrix(&self) -> Self
+    {
+       let mut self_copy = self.clone(); 
+       let mut result =  Self::get_identity_matrix();
+       for i in 0..N{
+        let pivot = self_copy.elements[i][i];
+        for j in 0..N{
+            self_copy.elements[i][j] /= pivot;
+            result.elements[i][j] /= pivot;
+            if i != j{
+                let ratio = self_copy.elements[j][i];
+                for k in 0..N{
+                    result.elements[j][k] -= ratio * result.elements[i][k];
+                }
+            }
+        }
+       }
+       result
+    }
+
+    pub fn get_dominant_eigen(&self, x: Matrix<N,1>, try_count: usize) -> (Matrix<N,1>, Matrix<N,1>, f64)
+    {
+        let mut try_count = try_count;
+        let mut x= x.clone();
+        let mat_a = self.clone(); 
+        loop{
+            let a_mul_x = mat_a * x;
+            if try_count == 0 
+            {
+                return (x, a_mul_x, a_mul_x.get_abs_max());
+            }
+            x = a_mul_x / a_mul_x.get_abs_max();
+            try_count -= 1;
+        }
+
+    }
+
+    pub fn get_smallest_eigen(&self, x: Matrix<N,1>, try_count: usize, alpha: f64)-> (Matrix<N,1>, Matrix<N,1>, f64, f64){
+        let mut try_count = try_count;
+        let mut x= x.clone();
+        let mat_a_inverse: Matrix<N, N> = self.clone().get_inverse_matrix(); 
+        loop{
+            let y = mat_a_inverse * x;
+            let mu =  y.get_abs_max();
+            let v = alpha + (1.0/ mu);
+            if try_count == 0 
+            {
+                return (x, y, mu, v);
+            }
+            x = y / mu;
+            try_count -= 1;
+        }
+
+    }
+}
+impl<const ROW_COUNT: usize, const COLUMN_COUNT: usize> std::ops::Div<f64> for Matrix<ROW_COUNT,COLUMN_COUNT>{
+    type Output = Matrix<ROW_COUNT,COLUMN_COUNT>;
+    fn div(self, other_scala:f64) -> Matrix<ROW_COUNT,COLUMN_COUNT>{
+        let mut result = Matrix{elements:[[0.0;COLUMN_COUNT];ROW_COUNT]};
+        for i in 0..ROW_COUNT{
+            for j in 0..COLUMN_COUNT{
+                result.elements[i][j] = self.elements[i][j] / other_scala;
+            }
+        }
+        result
+    }
+}
+impl<const ROW_COUNT: usize> Matrix<ROW_COUNT, 1>
+{
+    pub fn get_abs_max(&self) -> f64{
+        let mut max:f64 = 0.0;
+        for i in self.elements{
+            if max.abs() < i[0].abs() {
+                max = i[0];
+            }
+        }
+        max
     }
 
     pub fn dot(&self, other: Matrix<ROW_COUNT, 1>) -> f64{
@@ -32,70 +100,54 @@ impl<const ROW_COUNT: usize> Matrix<ROW_COUNT, 1>
     }
 }
 
-impl std::ops::Mul<Vec2> for Matrix<2,2>
+impl<const ROW_COUNT: usize, const COLUMN_COUNT: usize> std::ops::Mul<Matrix<COLUMN_COUNT,1>> for Matrix<ROW_COUNT,COLUMN_COUNT>
 {
-    type Output = Vec2;
+    type Output = Matrix<ROW_COUNT,1>;
 
-    fn mul(self, other_vector: Vec2) -> Vec2{
-        Matrix{
-            elements :[
-                [ self.elements[0][0] * other_vector.elements[0][0] + self.elements[0][1] * other_vector.elements[1][0] ],
-                [ self.elements[1][0] * other_vector.elements[0][0] + self.elements[1][1] * other_vector.elements[1][0] ]
-            ]
+    fn mul(self, other_vector: Matrix<COLUMN_COUNT,1>) -> Matrix<ROW_COUNT,1>{
+        let mut result = Matrix{elements: [[0.0;1];ROW_COUNT]};
+        for row in 0..ROW_COUNT{
+            for col in 0..COLUMN_COUNT{
+                result.elements[row][0] += self.elements[row][col] * other_vector.elements[col][0];
+            }
         }
-    }
-}
-
-impl std::ops::Mul<Vec3> for Matrix<3,3>
-{
-    type Output = Vec3;
-
-    fn mul(self, other_vector: Vec3) -> Vec3{
-        Matrix{
-            elements :[
-                [ self.elements[0][0] * other_vector.elements[0][0] + self.elements[0][1] * other_vector.elements[1][0] + self.elements[0][2] * other_vector.elements[2][0] ],
-                [ self.elements[1][0] * other_vector.elements[0][0] + self.elements[1][1] * other_vector.elements[1][0] + self.elements[1][2] * other_vector.elements[2][0] ],
-                [ self.elements[2][0] * other_vector.elements[0][0] + self.elements[2][1] * other_vector.elements[1][0] + self.elements[2][2] * other_vector.elements[2][0] ]
-            ]
-        }
+        result
     }
 }
 impl<const ROW_COUNT: usize>  std::fmt::Display for Matrix<ROW_COUNT, 1> {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(f,"[").unwrap();
         for i in 0..ROW_COUNT - 1{
-            write!(f,"{:.2}, ",self.elements[i][0]).unwrap();
+            write!(f,"{:.4}, ",self.elements[i][0]).unwrap();
         }
-        write!(f,"{:.2}]",self.elements[ROW_COUNT - 1][0])
+        write!(f,"{:.4}]",self.elements[ROW_COUNT - 1][0])
     }
 }
+
+
+
 fn main() {
-    let A = Matrix{elements: [[6.0, 5.0],
+    let mat_a = Matrix{elements: [[6.0, 5.0],
                                              [1.0, 2.0]]};
-    let mut x = Vec2{elements: [[1.0], [1.0]]};
-    let mut lambda = 0.0;
-    let mut mu = 0.0;
-    const MAX_COUNT: usize = 5;
-    let mut try_count = MAX_COUNT;
-    let mut Ax: Vec2 = A * x;
-    loop{
-        Ax = A * x;
-        let prev_lambda = lambda;
-        lambda = Ax.dot(x);
+    let x = Matrix{elements: [[0.0], [1.0]]};
+    let try_count = 6;
+    let result = mat_a.get_dominant_eigen(x, try_count);
 
-        if try_count == 0|| (lambda - prev_lambda).abs() < std::f64::EPSILON
-        {
-            break;
-        }
-        x = Ax.normalize();
-    
-        try_count -= 1;
-    }
-    mu = (A * x).get_norm();
+    println!("1번 문제: {try_count}번째 실행 결과");
+    println!("xk: {}", result.0);
+    println!("A x xk: {}", result.1);
+    println!("μk: {:.4}", result.2);
 
-    println!("{MAX_COUNT}번째 실행 결과");
-    println!("xk: {x}");
-    println!("A x xk: {Ax}");
-    println!("μk: {mu:.2}");
-   
+    let mat_b = Matrix{elements: [[10.0, -8.0, -4.0],
+                                            [-8.0, -13.0, 4.0],
+                                            [-4.0, 5.0, 4.0]]};
+    let x0 = Matrix{elements: [[1.0], [1.0], [1.0]]};
+    let try_count = 600;
+    let result0 = mat_b.get_smallest_eigen(x0, try_count, 0.0);
+
+    println!("2번 문제: {try_count}번째 실행 결과");
+    println!("xk: {}", result0.0);
+    println!("yk: {}", result0.1);
+    println!("μk: {:.4}", result0.2);
+    println!("vk: {:.4}", result0.3);
 }
