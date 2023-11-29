@@ -159,7 +159,6 @@ fn main() {
     let x0 = Matrix{elements: [[1.0], [1.0], [1.0]]};
     let try_count = 6;
     let problem2_solution = mat_b.get_smallest_eigen(x0, try_count);
-    println!("{}", mat_b.get_inverse_matrix());
     println!("2번 문제: {try_count}번째 실행 결과");
     println!("xk: {}", problem2_solution.0);
     println!("yk: {}", problem2_solution.1);
