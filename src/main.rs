@@ -2,7 +2,6 @@
 struct Matrix<const ROW_COUNT: usize, const COLUMN_COUNT: usize>{
     elements: [[f64;COLUMN_COUNT];ROW_COUNT]
 }
-
 impl<const N: usize> Matrix<N, N>
 {
     pub fn get_identity_matrix()-> Self{
@@ -18,14 +17,26 @@ impl<const N: usize> Matrix<N, N>
        let mut result =  Self::get_identity_matrix();
        for i in 0..N{
         let pivot = self_copy.elements[i][i];
-        for j in 0..N{
+        for j  in 0..N{
             self_copy.elements[i][j] /= pivot;
             result.elements[i][j] /= pivot;
-            if i != j{
-                let ratio = self_copy.elements[j][i];
-                for k in 0..N{
+        }
+
+
+        for j in 0..i{   
+            let ratio = self_copy.elements[j][i];
+
+            for k in 0..N{   
                     result.elements[j][k] -= ratio * result.elements[i][k];
-                }
+                    self_copy.elements[j][k] -= ratio * self_copy.elements[i][k];
+            }
+        }
+        for j in i + 1..N{
+            let ratio = self_copy.elements[j][i];
+
+            for k in 0..N{
+                result.elements[j][k] -= ratio * result.elements[i][k];
+                self_copy.elements[j][k] -= ratio *  self_copy.elements[i][k];
             }
         }
        }
@@ -52,7 +63,7 @@ impl<const N: usize> Matrix<N, N>
     pub fn get_smallest_eigen(&self, x: Matrix<N,1>, try_count: usize)-> (Matrix<N,1>, Matrix<N,1>, f64, f64){
         let mut try_count = try_count;
         let mut x= x.clone();
-        let mat_a_inverse: Matrix<N, N> = self.clone().get_inverse_matrix(); 
+        let mat_a_inverse: Matrix<N, N> = self.get_inverse_matrix(); 
         loop{
             let y = mat_a_inverse * x;
             let mu =  y.get_abs_max();
@@ -114,13 +125,17 @@ impl<const ROW_COUNT: usize, const COLUMN_COUNT: usize> std::ops::Mul<Matrix<COL
         result
     }
 }
-impl<const ROW_COUNT: usize>  std::fmt::Display for Matrix<ROW_COUNT, 1> {
+impl<const ROW_COUNT: usize, const COLUMN_COUNT: usize>  std::fmt::Display for Matrix<ROW_COUNT, COLUMN_COUNT> {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f,"[").unwrap();
-        for i in 0..ROW_COUNT - 1{
-            write!(f,"{:.4}, ",self.elements[i][0]).unwrap();
+        
+        for j in 0..ROW_COUNT{
+            write!(f,"|")?;
+            for i in 0..COLUMN_COUNT - 1{
+                write!(f,"{:.4} ",self.elements[j][i])?;
+            }
+            writeln!(f,"{:.4}|",self.elements[j][COLUMN_COUNT - 1])?;
         }
-        write!(f,"{:.4}]",self.elements[ROW_COUNT - 1][0])
+        Ok(())
     }
 }
 
@@ -131,23 +146,23 @@ fn main() {
                                              [1.0, 2.0]]};
     let x = Matrix{elements: [[0.0], [1.0]]};
     let try_count = 6;
-    let result = mat_a.get_dominant_eigen(x, try_count);
+    let problem1_solution = mat_a.get_dominant_eigen(x, try_count);
 
     println!("1번 문제: {try_count}번째 실행 결과");
-    println!("xk: {}", result.0);
-    println!("A x xk: {}", result.1);
-    println!("μk: {:.4}", result.2);
+    println!("xk: {}", problem1_solution.0);
+    println!("A x xk: {}", problem1_solution.1);
+    println!("μk: {:.4}", problem1_solution.2);
 
     let mat_b = Matrix{elements: [[10.0, -8.0, -4.0],
                                             [-8.0, -13.0, 4.0],
                                             [-4.0, 5.0, 4.0]]};
     let x0 = Matrix{elements: [[1.0], [1.0], [1.0]]};
-    let try_count = 600;
-    let result0 = mat_b.get_smallest_eigen(x0, try_count);
-
+    let try_count = 6;
+    let problem2_solution = mat_b.get_smallest_eigen(x0, try_count);
+    println!("{}", mat_b.get_inverse_matrix());
     println!("2번 문제: {try_count}번째 실행 결과");
-    println!("xk: {}", result0.0);
-    println!("yk: {}", result0.1);
-    println!("μk: {:.4}", result0.2);
-    println!("vk: {:.4}", result0.3);
+    println!("xk: {}", problem2_solution.0);
+    println!("yk: {}", problem2_solution.1);
+    println!("μk: {:.4}", problem2_solution.2);
+    println!("vk: {:.4}", problem2_solution.3);
 }
