@@ -125,16 +125,14 @@ impl<const ROW_COUNT: usize, const COLUMN_COUNT: usize> std::ops::Mul<Matrix<COL
         result
     }
 }
-impl<const ROW_COUNT: usize, const COLUMN_COUNT: usize>  std::fmt::Display for Matrix<ROW_COUNT, COLUMN_COUNT> {
+impl<const COLUMN_COUNT: usize>  std::fmt::Display for Matrix<COLUMN_COUNT,1> {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         
-        for j in 0..ROW_COUNT{
-            write!(f,"|")?;
-            for i in 0..COLUMN_COUNT - 1{
-                write!(f,"{:.4} ",self.elements[j][i])?;
-            }
-            writeln!(f,"{:.4}|",self.elements[j][COLUMN_COUNT - 1])?;
+        write!(f,"[")?;
+        for i in 0..COLUMN_COUNT - 1{
+            write!(f,"{:.4}, ",self.elements[i][0])?;
         }
+        write!(f,"{:.4}]",self.elements[COLUMN_COUNT - 1][0])?;
         Ok(())
     }
 }
@@ -146,22 +144,30 @@ fn main() {
                                              [1.0, 2.0]]};
     let x = Matrix{elements: [[0.0], [1.0]]};
     let try_count = 6;
-    let problem1_solution = mat_a.get_dominant_eigen(x, try_count);
 
-    println!("1번 문제: {try_count}번째 실행 결과");
-    println!("xk: {}", problem1_solution.0);
-    println!("A x xk: {}", problem1_solution.1);
-    println!("μk: {:.4}", problem1_solution.2);
+    for i in 0..try_count{
+        let problem1_solution = mat_a.get_dominant_eigen(x, i);
+
+        println!("1번 문제: {i}번째 실행 결과");
+        println!("xk: {}", problem1_solution.0);
+        println!("A x xk: {}", problem1_solution.1);
+        println!("μk: {:.4}", problem1_solution.2);
+        println!("");
+    }
+
 
     let mat_b = Matrix{elements: [[10.0, -8.0, -4.0],
                                             [-8.0, -13.0, 4.0],
                                             [-4.0, 5.0, 4.0]]};
     let x0 = Matrix{elements: [[1.0], [1.0], [1.0]]};
-    let try_count = 6;
-    let problem2_solution = mat_b.get_smallest_eigen(x0, try_count);
-    println!("2번 문제: {try_count}번째 실행 결과");
-    println!("xk: {}", problem2_solution.0);
-    println!("yk: {}", problem2_solution.1);
-    println!("μk: {:.4}", problem2_solution.2);
-    println!("vk: {:.4}", problem2_solution.3);
+    for i in 0..try_count{
+        let problem2_solution = mat_b.get_smallest_eigen(x0, i);
+        println!("2번 문제: {i}번째 실행 결과");
+        println!("xk: {}", problem2_solution.0);
+        println!("yk: {}", problem2_solution.1);
+        println!("μk: {:.4}", problem2_solution.2);
+        println!("vk: {:.4}", problem2_solution.3);
+        println!("");
+    }
+
 }
