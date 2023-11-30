@@ -43,55 +43,104 @@
          }
     }
     ```
-  - 벡터 간의 내적
+  - Power method 구현을 위해 행렬/벡터와 스칼라 나눗셈을 구합니다.
     ```Rust
-    pub fn dot(&self, other: Matrix<ROW_COUNT, 1>) -> f64{
-        let mut sum = 0.0;
+    fn div(self, other_scala:f64) -> Matrix<ROW_COUNT,COLUMN_COUNT>{
+        let mut result = Matrix{elements:[[0.0;COLUMN_COUNT];ROW_COUNT]};
         for i in 0..ROW_COUNT{
-            sum += self.elements[i][0] * other.elements[i][0];
+            for j in 0..COLUMN_COUNT{
+                result.elements[i][j] = self.elements[i][j] / other_scala;
+            }
         }
-        sum
+        result
     }
     ```
-  - 벡터 정규화
+  - Power method 구현을 위해 벡터 절대값 최대값을 구합니다.
     ```Rust
-    pub fn normalize(&self) -> Matrix<ROW_COUNT, 1>{
-     let mut sum: f64 = 0.0;
-     for i in self.elements{
-      sum += i[0] * i[0];
-     }
-     let norm = sum.sqrt();
-     let mut result = Self { elements: [[0.0;1]; ROW_COUNT] };
-     for j in 0..ROW_COUNT{
-       result.elements[j][0] = self.elements[j][0] / norm;
-     }
-     result
+    pub fn get_abs_max(&self) -> f64{
+        let mut max:f64 = 0.0;
+        for i in self.elements{
+            if max.abs() < i[0].abs() {
+                max = i[0];
+            }
+        }
+        max
     }
     ```
 
-  ### 3.iterative power method를 구현합니다.
-
-  - lambda는 고유값(eigenvalue)에 대한 근삿값이고, x는 임의의 벡터에서 고유벡터(eigenvector)로 수렴하는 벡터입니다.
-      ```Rust
-       loop{
-          Ax = A * x;
-        let prev_lambda = lambda;
-        lambda = Ax.dot(x);
-
-        if try_count == 0|| (lambda - prev_lambda).abs() < std::f64::EPSILON
-        {
-            break;
+  - Inverse power method 구현을 위해 역행렬을 구하는 가우스-조르단 소거법을 구현합니다.
+    ```Rust
+    pub fn get_inverse_matrix(&self) -> Self
+    {
+       let mut self_copy = self.clone(); 
+       let mut result =  Self::get_identity_matrix();
+       for i in 0..N{
+        let pivot = self_copy.elements[i][i];
+        for j  in 0..N{
+            self_copy.elements[i][j] /= pivot;
+            result.elements[i][j] /= pivot;
         }
-        x = Ax.normalize();
-    
-        try_count -= 1;
-       }
-      //최종 mu 계산
-      mu = (A * x).get_norm();
 
-      //출력
-      println!("{MAX_COUNT}번째 실행 결과");
-      println!("xk: {x}");
-      println!("A x xk: {Ax}");
-      println!("μk: {mu:.2}");
+
+        for j in 0..i{   
+            let ratio = self_copy.elements[j][i];
+
+            for k in 0..N{   
+                    result.elements[j][k] -= ratio * result.elements[i][k];
+                    self_copy.elements[j][k] -= ratio * self_copy.elements[i][k];
+            }
+        }
+        for j in i + 1..N{
+            let ratio = self_copy.elements[j][i];
+
+            for k in 0..N{
+                result.elements[j][k] -= ratio * result.elements[i][k];
+                self_copy.elements[j][k] -= ratio *  self_copy.elements[i][k];
+            }
+        }
+       }
+       result
+    }
+    ```
+
+  ### 4.inverse power method & power method를 구현합니다.
+
+  - power method로 dominant eigen을 찾습니다.
+      ```Rust
+      pub fn get_dominant_eigen(&self, x: Matrix<N,1>, try_count: usize) -> (Matrix<N,1>, Matrix<N,1>, f64)
+      {
+        let mut try_count = try_count;
+        let mut x= x.clone();
+        let mat_a = self.clone(); 
+        loop{
+            let a_mul_x = mat_a * x;
+            if try_count == 0 
+            {
+                return (x, a_mul_x, a_mul_x.get_abs_max());
+            }
+            x = a_mul_x / a_mul_x.get_abs_max();
+            try_count -= 1;
+        }
+
+      }
       ```
+ - inverse power method로 절대값이 가장 작은 eigen을 찾습니다.
+   ```Rust
+   pub fn get_smallest_eigen(&self, x: Matrix<N,1>, try_count: usize)-> (Matrix<N,1>, Matrix<N,1>, f64, f64){
+        let mut try_count = try_count;
+        let mut x= x.clone();
+        let mat_a_inverse: Matrix<N, N> = self.get_inverse_matrix(); 
+        loop{
+            let y = mat_a_inverse * x;
+            let mu =  y.get_abs_max();
+            let v = 1.0/ mu;
+            if try_count == 0 
+            {
+                return (x, y, mu, v);
+            }
+            x = y / mu;
+            try_count -= 1;
+        }
+
+   }
+   ```
