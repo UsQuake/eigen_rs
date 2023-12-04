@@ -24,11 +24,7 @@
         elements: [[f64;COLUMN_COUNT];ROW_COUNT]
     }
     ```
-  - 요소가 2개, 3개인 열벡터를 행렬을 통해 정의합니다.
-    ```Rust
-    type Vec3 = Matrix<3, 1>;
-    type Vec2 = Matrix<2, 1>;
-    ```
+    
   ### 2.벡터/행렬에 대한 기본적인 연산들(정규화, 내적, 행렬곱)을 구현합니다.
 
   - 행렬과 열벡터의 곱
@@ -43,7 +39,31 @@
          }
     }
     ```
-  - Power method 구현을 위해 행렬/벡터와 스칼라 나눗셈을 구합니다.
+  - (A - I α) 식 해석을 위해 행렬 간 뺄셈 구현
+    ```Rust
+    fn sub(self, other_matrix: Self) -> Matrix<ROW_COUNT,COLUMN_COUNT>{
+        let mut result = Matrix{elements:[[0.0;COLUMN_COUNT];ROW_COUNT]};
+        for i in 0..ROW_COUNT{
+            for j in 0..COLUMN_COUNT{
+                result.elements[i][j] = self.elements[i][j] - other_matrix.elements[i][j];
+            }
+        }
+        result
+    }
+    ```
+    - (A - I α) 식 해석을 위해 행렬 - 스칼라 곱 구현
+    ```Rust
+    fn mul(self, other_scala: f64) -> Matrix<ROW_COUNT,COLUMN_COUNT>{
+        let mut result = Matrix{elements: [[0.0;COLUMN_COUNT];ROW_COUNT]};
+        for row in 0..ROW_COUNT{
+            for col in 0..COLUMN_COUNT{
+                result.elements[row][col] = self.elements[row][col] * other_scala;
+            }
+        }
+        result
+    }
+    ```
+  - Power method 구현을 위해 행렬/벡터 - 스칼라 나눗셈 구현.
     ```Rust
     fn div(self, other_scala:f64) -> Matrix<ROW_COUNT,COLUMN_COUNT>{
         let mut result = Matrix{elements:[[0.0;COLUMN_COUNT];ROW_COUNT]};
@@ -55,7 +75,7 @@
         result
     }
     ```
-  - Power method 구현을 위해 벡터 절대값 최대값을 구합니다.
+  - Power method 구현을 위해 벡터 절대값 최대값 구현.
     ```Rust
     pub fn get_abs_max(&self) -> f64{
         let mut max:f64 = 0.0;
@@ -68,7 +88,7 @@
     }
     ```
 
-  - Inverse power method 구현을 위해 역행렬을 구하는 가우스-조르단 소거법을 구현합니다.
+  - Inverse power method 구현을 위해 역행렬을 구하는 가우스-조르단 소거법을 구현.
     ```Rust
     pub fn get_inverse_matrix(&self) -> Self
     {
@@ -105,7 +125,7 @@
 
   ### 4.inverse power method & power method를 구현합니다.
 
-  - power method로 dominant eigen을 찾습니다.
+  - power method로 dominant eigen을 탐색.
       ```Rust
       pub fn get_dominant_eigen(&self, x: Matrix<N,1>, try_count: usize) -> (Matrix<N,1>, Matrix<N,1>, f64)
       {
@@ -124,7 +144,7 @@
 
       }
       ```
- - inverse power method로 근삿값과 가장 가까운 eigen을 찾습니다.
+ - inverse power method로 근삿값과 가장 가까운 eigen을 탐색.
    ```Rust
    pub fn get_alpha_nearest_eigen(&self, x: Matrix<N,1>, try_count: usize, alpha:f64)-> (Matrix<N,1>, Matrix<N,1>, f64, f64){
         let mut try_count = try_count;
