@@ -63,7 +63,7 @@ impl<const N: usize> Matrix<N, N>
     pub fn get_alpha_nearest_eigen(&self, x: Matrix<N,1>, try_count: usize, alpha:f64)-> (Matrix<N,1>, Matrix<N,1>, f64, f64){
         let mut try_count = try_count;
         let mut x= x.clone();
-        let solution_with_matrix: Matrix<N, N> = (*self -  Self::get_identity_matrix() * alpha).get_inverse_matrix(); 
+        let solution_with_matrix: Matrix<N, N> = (*self -  (Self::get_identity_matrix() * alpha)).get_inverse_matrix(); 
         loop{
             let y = solution_with_matrix * x;
             let mu =  y.get_abs_max();
@@ -102,7 +102,7 @@ impl<const N: usize> Matrix<N, N>
         let mut try_count = 0;
         let mut x= x.clone();
         let mut v = 0.0;
-        let solution_with_matrix: Matrix<N, N> = (*self -  Self::get_identity_matrix() * alpha).get_inverse_matrix(); 
+        let solution_with_matrix: Matrix<N, N> = (*self -  (Self::get_identity_matrix() * alpha)).get_inverse_matrix(); 
         loop{
             let y = solution_with_matrix * x;
             let mu =  y.get_abs_max();
