@@ -126,24 +126,20 @@
       ```
  - inverse power method로 근삿값과 가장 가까운 eigen을 찾습니다.
    ```Rust
-   pub fn get_alpha_nearest_eigen_auto(&self, x: Matrix<N,1>, alpha: f64)-> (Matrix<N,1>, Matrix<N,1>, f64, f64, usize){
-        let mut try_count = 0;
+   pub fn get_alpha_nearest_eigen(&self, x: Matrix<N,1>, try_count: usize, alpha:f64)-> (Matrix<N,1>, Matrix<N,1>, f64, f64){
+        let mut try_count = try_count;
         let mut x= x.clone();
-        let mut v = 0.0;
         let solution_with_matrix: Matrix<N, N> = (*self -  Self::get_identity_matrix() * alpha).get_inverse_matrix(); 
         loop{
             let y = solution_with_matrix * x;
             let mu =  y.get_abs_max();
-            let prev_v = v;
-            v = alpha + (1.0 / mu);
-            if (v - prev_v).abs() < std::f64::EPSILON
+            let v = alpha + (1.0 / mu);
+            if try_count == 0 
             {
-                return (x, y, mu, v, try_count);
+                return (x, y, mu, v);
             }
             x = y / mu;
-            try_count += 1;
+            try_count -= 1;
         }
-    
-
    }
    ```
