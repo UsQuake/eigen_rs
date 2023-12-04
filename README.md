@@ -27,7 +27,7 @@
     
   ### 2.벡터/행렬에 대한 기본적인 연산들(정규화, 내적, 행렬곱)을 구현합니다.
 
-  - 행렬과 열벡터의 곱
+  - 행렬-열벡터 곱 구현.
     ```Rust
     fn mul(self, other_vector: Vec3) -> Vec3{
        Matrix{
@@ -39,7 +39,7 @@
          }
     }
     ```
-  - (A - I α) 식 해석을 위해 행렬 간 뺄셈 구현
+  - (A - I α) 식 해석을 위해 행렬-행렬 뺄셈 구현.
     ```Rust
     fn sub(self, other_matrix: Self) -> Matrix<ROW_COUNT,COLUMN_COUNT>{
         let mut result = Matrix{elements:[[0.0;COLUMN_COUNT];ROW_COUNT]};
@@ -51,7 +51,7 @@
         result
     }
     ```
-    - (A - I α) 식 해석을 위해 행렬 - 스칼라 곱 구현
+  - (A - I α) 식 해석을 위해 행렬-스칼라 곱 구현.
     ```Rust
     fn mul(self, other_scala: f64) -> Matrix<ROW_COUNT,COLUMN_COUNT>{
         let mut result = Matrix{elements: [[0.0;COLUMN_COUNT];ROW_COUNT]};
@@ -63,7 +63,7 @@
         result
     }
     ```
-  - Power method 구현을 위해 행렬/벡터 - 스칼라 나눗셈 구현.
+  - Power method 구현을 위해 행렬/벡터-스칼라 나눗셈 구현.
     ```Rust
     fn div(self, other_scala:f64) -> Matrix<ROW_COUNT,COLUMN_COUNT>{
         let mut result = Matrix{elements:[[0.0;COLUMN_COUNT];ROW_COUNT]};
