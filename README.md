@@ -124,7 +124,7 @@
 
       }
       ```
- - inverse power method로 절대값이 가장 작은 eigen을 찾습니다.
+ - inverse power method로 근삿값과 가장 가까운 eigen을 찾습니다.
    ```Rust
    pub fn get_smallest_eigen(&self, x: Matrix<N,1>, try_count: usize)-> (Matrix<N,1>, Matrix<N,1>, f64, f64){
         let mut try_count = try_count;
